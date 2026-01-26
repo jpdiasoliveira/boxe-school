@@ -168,9 +168,11 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 })
             });
             return !!data;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Register professor error:', error);
-            return false;
+            const message = error.response?.data?.error || 'Erro ao realizar cadastro';
+            const details = error.response?.data?.details || '';
+            throw new Error(`${message}${details ? `: ${details}` : ''}`);
         }
     };
 

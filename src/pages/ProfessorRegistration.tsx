@@ -30,22 +30,23 @@ const ProfessorRegistration = () => {
             return;
         }
 
-        const success = await registerProfessor(
-            {
-                name: formData.name,
-                email: formData.email,
-            },
-            formData.password,
-            formData.username
-        );
+        try {
+            const success = await registerProfessor(
+                {
+                    name: formData.name,
+                    email: formData.email,
+                },
+                formData.password,
+                formData.username
+            );
 
-        if (!success) {
-            setError('Nome de usuário já existe ou ocorreu um erro.');
-            return;
+            if (success) {
+                alert('Cadastro realizado com sucesso! Faça login para continuar.');
+                navigate('/');
+            }
+        } catch (error: any) {
+            setError(error.message || 'Ocorreu um erro ao cadastrar professor');
         }
-
-        alert('Cadastro realizado com sucesso! Faça login para continuar.');
-        navigate('/');
     };
 
     return (

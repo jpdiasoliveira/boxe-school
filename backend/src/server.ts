@@ -114,7 +114,37 @@ app.post('/api/auth/register/student', async (req, res) => {
 app.post('/api/auth/register/professor', async (req, res) => {
     const { username, password, name, email } = req.body;
 
+    // Validação de entrada
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Usuário e senha são obrigatórios' });
+    }
+
+    if (typeof username !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({ error: 'Dados inválidos' });
+    }
+
+    if (username.length < 3) {
+        return res.status(400).json({ error: 'Nome de usuário deve ter no mínimo 3 caracteres' });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'Senha deve ter no mínimo 6 caracteres' });
+    }
+
+    if (!name || !email) {
+        return res.status(400).json({ error: 'Nome e email são obrigatórios' });
+    }
+
     try {
+        // Verificar se usuário já existe
+        const existingUser = await prisma.user.findUnique({
+            where: { username }
+        });
+
+        if (existingUser) {
+            return res.status(400).json({ error: 'Nome de usuário já existe' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const result = await prisma.$transaction(async (prisma) => {
@@ -138,8 +168,15 @@ app.post('/api/auth/register/professor', async (req, res) => {
         });
 
         res.json(result);
-    } catch (error) {
-        res.status(400).json({ error: 'Erro ao registrar professor' });
+    } catch (error: any) {
+        console.error('Error registering professor:', error);
+        
+        // Verificar erro de constraint única
+        if (error.code === 'P2002') {
+            return res.status(400).json({ error: 'Nome de usuário já existe' });
+        }
+        
+        res.status(500).json({ error: 'Erro ao registrar professor' });
     }
 });
 

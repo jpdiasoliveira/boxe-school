@@ -7,6 +7,17 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
 
+// Initialize database
+async function initDatabase() {
+  try {
+    await prisma.$connect();
+    console.log('✅ Database connected successfully');
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    // Continue without database for now
+  }
+}
+
 app.use(cors());
 app.use(express.json());
 
@@ -348,6 +359,7 @@ app.post('/api/attendance', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
+    await initDatabase();
 });

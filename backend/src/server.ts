@@ -177,35 +177,44 @@ app.post('/api/auth/register/student', async (req, res) => {
     }
 
     try {
+        // Verificar se usuário já existe
+        const existingUser = await prisma.$queryRaw`SELECT id FROM users WHERE username = ${username}` as any[];
+        if (existingUser.length > 0) {
+            return res.status(400).json({ error: 'Nome de usuário já existe' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Gerar IDs numéricos
+        const userId = Math.floor(Math.random() * 1000000) + 1;
+        const studentId = Math.floor(Math.random() * 1000000) + 1;
 
-        const result = await prisma.$transaction(async (prisma) => {
-            const user = await prisma.user.create({
-                data: {
-                    username,
-                    password: hashedPassword,
-                    role: 'student'
-                }
-            });
+        // Inserir usuário
+        await prisma.$queryRaw`
+            INSERT INTO users (id, username, password, role) 
+            VALUES (${userId}, ${username}, ${hashedPassword}, 'student')
+        `;
 
-            const student = await prisma.student.create({
-                data: {
-                    ...studentData,
-                    joinDate: studentData.joinDate || new Date().toISOString().split('T')[0],
-                    userId: user.id
-                }
-            });
+        // Inserir aluno
+        await prisma.$queryRaw`
+            INSERT INTO students (id, name, email, phone, "birthDate", weight, height, objective, "athleteType", "planType", "paymentDay", "joinDate", active, userid) 
+            VALUES (${studentId}, ${studentData.name}, ${studentData.email}, ${studentData.phone}, ${studentData.birthDate}, ${studentData.weight}, ${studentData.height}, ${studentData.objective}, ${studentData.athleteType}, ${studentData.planType}, ${studentData.paymentDay}, ${studentData.joinDate || new Date().toISOString().split('T')[0]}, true, ${userId})
+        `;
 
-            return { user, student };
+        res.json({ 
+            message: 'Aluno cadastrado com sucesso',
+            user: { id: userId, username, role: 'student' },
+            student: { 
+                id: studentId, 
+                name: studentData.name, 
+                email: studentData.email,
+                userId 
+            }
         });
 
-        res.json(result);
-    } catch (error: any) {
-        console.error(error);
-        res.status(400).json({
-            error: 'Erro ao registrar aluno',
-            details: error.message
-        });
+    } catch (error) {
+        console.error('Error registering student:', error);
+        res.status(500).json({ error: 'Erro ao registrar aluno' });
     }
 });
 

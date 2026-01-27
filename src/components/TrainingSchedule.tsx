@@ -9,8 +9,8 @@ const TrainingSchedule = () => {
     const [showAll, setShowAll] = useState(false);
     const upcomingTrainings = getUpcomingTrainings(); // Já filtra treinos futuros
     
-    // Mostrar apenas 2 treinos por padrão
-    const displayedTrainings = showAll ? upcomingTrainings : upcomingTrainings.slice(0, 2);
+    // Mostrar treinos apenas quando showAll for true
+    const displayedTrainings = showAll ? upcomingTrainings : [];
 
     const getMyAttendance = (trainingId: string) => {
         if (!currentUser) return null;
@@ -50,6 +50,11 @@ const TrainingSchedule = () => {
                     <p className="text-slate-500 text-center py-8">Nenhum treino agendado</p>
                 ) : (
                     <>
+                        {!showAll && (
+                            <div className="text-center py-8">
+                                <p className="text-slate-400 mb-4">Clique no botão abaixo para ver os treinos agendados</p>
+                            </div>
+                        )}
                         {displayedTrainings.map(training => {
                         const myAttendance = getMyAttendance(training.id);
                         const daysUntil = getDaysUntil(training.date);
@@ -152,14 +157,14 @@ const TrainingSchedule = () => {
                         );
                     })}
                     
-                    {/* Botão Ver Todos */}
-                    {upcomingTrainings.length > 2 && (
+                    {/* Botão Ver/Ocultar Treinos */}
+                    {upcomingTrainings.length > 0 && (
                         <div className="text-center pt-2">
                             <button
                                 onClick={() => setShowAll(!showAll)}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
                             >
-                                {showAll ? 'Mostrar Menos' : `Ver Todos (${upcomingTrainings.length} treinos)`}
+                                {showAll ? 'Ocultar Treinos' : `Ver Treinos (${upcomingTrainings.length})`}
                             </button>
                         </div>
                     )}

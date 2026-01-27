@@ -197,7 +197,7 @@ app.post('/api/auth/register/student', async (req, res) => {
 
         // Inserir aluno
         await prisma.$queryRaw`
-            INSERT INTO students (id, name, email, phone, "birthDate", weight, height, objective, "athleteType", "planType", "paymentDay", "joinDate", active, userid) 
+            INSERT INTO students (id, name, email, phone, birthdate, weight, height, objective, "athleteType", "planType", "paymentDay", "joinDate", active, userid) 
             VALUES (${studentId}, ${studentData.name}, ${studentData.email}, ${studentData.phone}, ${studentData.birthDate}, ${studentData.weight}, ${studentData.height}, ${studentData.objective}, ${studentData.athleteType}, ${studentData.planType}, ${studentData.paymentDay}, ${studentData.joinDate || new Date().toISOString().split('T')[0]}, true, ${userId})
         `;
 

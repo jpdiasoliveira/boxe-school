@@ -374,7 +374,7 @@ app.post('/api/trainings', async (req, res) => {
         }
         
         const trainingId = Math.floor(Math.random() * 1000000) + 1;
-        const createdByNum = parseInt(createdby);
+        const createdByNum = BigInt(createdby);
         
         await prisma.$queryRaw`
             INSERT INTO trainingsessions (id, date, time, location, description, createdby) 

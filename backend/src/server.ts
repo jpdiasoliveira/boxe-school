@@ -209,7 +209,7 @@ app.post('/api/auth/register/professor', async (req, res) => {
         }
 
         // Verificar se usuário já existe
-        const existingUser = await prisma.$queryRaw`SELECT id FROM users WHERE username = ${username}`;
+        const existingUser = await prisma.$queryRaw`SELECT id FROM users WHERE username = ${username}` as any[];
         if (existingUser.length > 0) {
             return res.status(400).json({ error: 'Nome de usuário já existe' });
         }

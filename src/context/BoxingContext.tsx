@@ -260,6 +260,11 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const addTrainingSession = async (training: Omit<TrainingSession, 'id'>) => {
         try {
+            // Verificar se o usuário atual é professor
+            if (!currentUser || currentUser.role !== 'professor') {
+                throw new Error('Apenas professores podem criar treinos');
+            }
+            
             await apiCall('/trainings', {
                 method: 'POST',
                 body: JSON.stringify(training)
@@ -268,16 +273,23 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             setTrainingSessions(trainings);
         } catch (error) {
             console.error('Add training error:', error);
+            throw error;
         }
     };
 
     const deleteTrainingSession = async (id: string) => {
         try {
+            // Verificar se o usuário atual é professor
+            if (!currentUser || currentUser.role !== 'professor') {
+                throw new Error('Apenas professores podem deletar treinos');
+            }
+            
             await apiCall(`/trainings/${id}`, { method: 'DELETE' });
             const trainings = await apiCall('/trainings');
             setTrainingSessions(trainings);
         } catch (error) {
             console.error('Delete training error:', error);
+            throw error;
         }
     };
 

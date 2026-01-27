@@ -400,8 +400,13 @@ app.delete('/api/trainings/:id', async (req, res) => {
 
 // Get Attendance
 app.get('/api/attendance', async (req, res) => {
-    const attendance = await prisma.attendance.findMany();
-    res.json(attendance);
+    try {
+        const attendance = await prisma.$queryRaw`SELECT * FROM attendance` as any[];
+        res.json(attendance);
+    } catch (error) {
+        console.error('Error fetching attendance:', error);
+        res.status(500).json({ error: 'Erro ao buscar presença' });
+    }
 });
 
 // Mark Attendance

@@ -67,7 +67,7 @@ async function initDatabase() {
       time TEXT NOT NULL,
       location TEXT NOT NULL,
       description TEXT,
-      "createdBy" TEXT NOT NULL,
+      createdby TEXT NOT NULL,
       CONSTRAINT trainingsessions_pkey PRIMARY KEY (id)
     );`;
     

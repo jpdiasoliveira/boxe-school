@@ -95,17 +95,9 @@ const StudentDashboard = () => {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Conta Inativa</h2>
-          <p className="text-slate-400 mb-6">
-            Sua conta está pendente ou inativa. Entre em contato com a administração para mais informações.
-          </p>
-          <button
-            onClick={logout}
-            className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-          >
-            Sair
-          </button>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold mb-2">Carregando...</h2>
+          <p className="text-slate-400">Estamos preparando seu dashboard.</p>
         </div>
       </div>
     );

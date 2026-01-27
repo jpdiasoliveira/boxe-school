@@ -363,11 +363,18 @@ app.get('/api/trainings', async (req, res) => {
 // Create Training
 app.post('/api/trainings', async (req, res) => {
     try {
-        const training = await prisma.trainingSession.create({
-            data: req.body
-        });
-        res.json(training);
+        const { date, time, location, description, createdby } = req.body;
+        const trainingId = Math.floor(Math.random() * 1000000) + 1;
+        
+        await prisma.$queryRaw`
+            INSERT INTO trainingsessions (id, date, time, location, description, createdby) 
+            VALUES (${trainingId}, ${date}, ${time}, ${location}, ${description}, ${createdby})
+        `;
+        
+        const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = ${trainingId}` as any[];
+        res.json(training[0]);
     } catch (error) {
+        console.error('Error creating training:', error);
         res.status(400).json({ error: 'Erro ao criar treino' });
     }
 });

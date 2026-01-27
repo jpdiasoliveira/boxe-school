@@ -1,16 +1,11 @@
 import { useBoxing } from '../context/BoxingContext';
 import { Calendar, MapPin, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { format, parseISO, differenceInDays, isSameWeek } from 'date-fns';
+import { format, parseISO, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const TrainingSchedule = () => {
     const { currentUser, getUpcomingTrainings, markAttendance, attendance, canConfirmAttendance } = useBoxing();
-    const allUpcomingTrainings = getUpcomingTrainings();
-
-    // Filter only trainings for the current week
-    const upcomingTrainings = allUpcomingTrainings.filter(t =>
-        isSameWeek(parseISO(t.date), new Date(), { weekStartsOn: 0 }) // 0 = Sunday
-    );
+    const upcomingTrainings = getUpcomingTrainings(); // Já filtra treinos futuros
 
     const getMyAttendance = (trainingId: string) => {
         if (!currentUser) return null;

@@ -278,9 +278,10 @@ app.post('/api/auth/register/professor', async (req, res) => {
 // Get All Professors
 app.get('/api/professors', async (req, res) => {
     try {
-        const professors = await prisma.professor.findMany();
+        const professors = await prisma.$queryRaw`SELECT * FROM professors` as any[];
         res.json(professors);
     } catch (error) {
+        console.error('Error fetching professors:', error);
         res.status(500).json({ error: 'Erro ao buscar professores' });
     }
 });
@@ -311,8 +312,13 @@ app.put('/api/professors/:id', async (req, res) => {
 
 // Get Students
 app.get('/api/students', async (req, res) => {
-    const students = await prisma.student.findMany();
-    res.json(students);
+    try {
+        const students = await prisma.$queryRaw`SELECT * FROM students` as any[];
+        res.json(students);
+    } catch (error) {
+        console.error('Error fetching students:', error);
+        res.status(500).json({ error: 'Erro ao buscar alunos' });
+    }
 });
 
 // Update Student
@@ -344,18 +350,14 @@ app.delete('/api/students/:id', async (req, res) => {
 
 // Get Upcoming Trainings
 app.get('/api/trainings', async (req, res) => {
-    const today = new Date().toISOString().split('T')[0];
-    const trainings = await prisma.trainingSession.findMany({
-        where: {
-            date: {
-                gte: today
-            }
-        },
-        orderBy: {
-            date: 'asc'
-        }
-    });
-    res.json(trainings);
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const trainings = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE date >= ${today} ORDER BY date, time` as any[];
+        res.json(trainings);
+    } catch (error) {
+        console.error('Error fetching trainings:', error);
+        res.status(500).json({ error: 'Erro ao buscar treinos' });
+    }
 });
 
 // Create Training

@@ -377,7 +377,7 @@ app.post('/api/trainings', async (req, res) => {
         
         await prisma.$queryRaw`
             INSERT INTO trainingsessions (id, date, time, location, description, createdby) 
-            VALUES (${trainingId}, ${date}, ${time}, ${location}, ${description}, CAST(${createdby} AS BIGINT))
+            VALUES (${trainingId}, ${date}, ${time}, ${location}, ${description}, ${createdby}::bigint)
         `;
         
         const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = ${trainingId}` as any[];

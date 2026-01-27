@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useBoxing } from '../context/BoxingContext';
 import { Calendar, MapPin, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
@@ -5,7 +6,11 @@ import { ptBR } from 'date-fns/locale';
 
 const TrainingSchedule = () => {
     const { currentUser, getUpcomingTrainings, markAttendance, attendance, canConfirmAttendance } = useBoxing();
+    const [showAll, setShowAll] = useState(false);
     const upcomingTrainings = getUpcomingTrainings(); // Já filtra treinos futuros
+    
+    // Mostrar apenas 2 treinos por padrão
+    const displayedTrainings = showAll ? upcomingTrainings : upcomingTrainings.slice(0, 2);
 
     const getMyAttendance = (trainingId: string) => {
         if (!currentUser) return null;
@@ -44,7 +49,8 @@ const TrainingSchedule = () => {
                 {upcomingTrainings.length === 0 ? (
                     <p className="text-slate-500 text-center py-8">Nenhum treino agendado</p>
                 ) : (
-                    upcomingTrainings.map(training => {
+                    <>
+                        {displayedTrainings.map(training => {
                         const myAttendance = getMyAttendance(training.id);
                         const daysUntil = getDaysUntil(training.date);
                         const canConfirm = canConfirmAttendance(training.date, training.time);
@@ -144,7 +150,20 @@ const TrainingSchedule = () => {
                                 )}
                             </div>
                         );
-                    })
+                    })}
+                    
+                    {/* Botão Ver Todos */}
+                    {upcomingTrainings.length > 2 && (
+                        <div className="text-center pt-2">
+                            <button
+                                onClick={() => setShowAll(!showAll)}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+                            >
+                                {showAll ? 'Mostrar Menos' : `Ver Todos (${upcomingTrainings.length} treinos)`}
+                            </button>
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
 

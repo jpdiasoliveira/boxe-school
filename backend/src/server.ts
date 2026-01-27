@@ -143,10 +143,13 @@ app.post('/api/auth/login', async (req, res) => {
             }
         } else if (user.role === 'student') {
             const students = await prisma.$queryRaw`
-                SELECT id, name, email FROM students WHERE userid = ${user.id}
+                SELECT id, name, email, userid FROM students WHERE userid = ${user.id}
             ` as any[];
             if (students.length > 0) {
-                additionalInfo = { student: students[0] };
+                additionalInfo = { 
+                    student: students[0],
+                    profileId: students[0].userid.toString() // Adicionar profileId
+                };
             }
         }
 
@@ -339,11 +342,10 @@ app.put('/api/students/:id', async (req, res) => {
 app.delete('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        await prisma.student.delete({
-            where: { id }
-        });
+        await prisma.$executeRawUnsafe(`DELETE FROM students WHERE userid = '${id}'`);
         res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
+        console.error('Error deleting student:', error);
         res.status(400).json({ error: 'Erro ao deletar aluno' });
     }
 });

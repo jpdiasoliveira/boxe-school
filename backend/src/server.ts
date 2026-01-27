@@ -217,9 +217,9 @@ app.post('/api/auth/register/professor', async (req, res) => {
         // Hash da senha
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // Gerar IDs
-        const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        const professorId = `prof_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        // Gerar IDs numéricos
+        const userId = Math.floor(Math.random() * 1000000) + 1;
+        const professorId = Math.floor(Math.random() * 1000000) + 1;
 
         // Inserir usuário
         await prisma.$queryRaw`

@@ -7,6 +7,16 @@ import { ptBR } from 'date-fns/locale';
 
 const TrainingManager = () => {
     const { currentUser, addTrainingSession, deleteTrainingSession, getUpcomingTrainings, attendance, students } = useBoxing();
+    
+    // Apenas professores podem gerenciar treinos
+    if (currentUser?.role !== 'professor') {
+        return (
+            <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-center">
+                <p className="text-red-400">Apenas professores podem gerenciar treinos.</p>
+            </div>
+        );
+    }
+    
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [showAllTrainings, setShowAllTrainings] = useState(false);
     const [formData, setFormData] = useState({

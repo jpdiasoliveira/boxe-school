@@ -119,7 +119,7 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     const attendanceData = await apiCall('/attendance');
                     setAttendance(attendanceData);
                     const studentsData = await apiCall('/students');
-                    const student = studentsData.find((s: any) => s.userId === currentUser?.id);
+                    const student = studentsData.find((s: any) => s.userid === currentUser?.id);
                     setStudents(student ? [student] : []);
                 }
             } catch (error) {

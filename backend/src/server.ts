@@ -398,12 +398,17 @@ app.post('/api/trainings', async (req, res) => {
 app.put('/api/trainings/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const training = await prisma.trainingSession.update({
-            where: { id },
-            data: req.body
-        });
-        res.json(training);
-    } catch (error) {
+        const { date, time, location, description } = req.body;
+        await prisma.$executeRawUnsafe(`
+            UPDATE trainingsessions 
+            SET date = '${date}', time = '${time}', location = '${location}', description = '${description}'
+            WHERE id = ${id}
+        `);
+        
+        const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = ${id}` as any[];
+        res.json(training[0]);
+    } catch (error: any) {
+        console.error('Error updating training:', error);
         res.status(400).json({ error: 'Erro ao atualizar treino' });
     }
 });
@@ -411,11 +416,11 @@ app.put('/api/trainings/:id', async (req, res) => {
 // Delete Training
 app.delete('/api/trainings/:id', async (req, res) => {
     try {
-        await prisma.trainingSession.delete({
-            where: { id: req.params.id }
-        });
+        const { id } = req.params;
+        await prisma.$executeRawUnsafe(`DELETE FROM trainingsessions WHERE id = ${id}`);
         res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
+        console.error('Error deleting training:', error);
         res.status(400).json({ error: 'Erro ao deletar treino' });
     }
 });

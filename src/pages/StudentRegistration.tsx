@@ -59,6 +59,7 @@ const StudentRegistration = () => {
                 paymentDay: parseInt(formData.paymentDay),
                 planType: formData.planType,
                 athleteType: formData.athleteType,
+                userid: '', // Será preenchido no backend
             },
             formData.password,
             formData.username

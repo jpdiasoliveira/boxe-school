@@ -378,12 +378,12 @@ app.post('/api/trainings', async (req, res) => {
         // Usar SQL puro para evitar problemas de tipo
         const sql = `
             INSERT INTO trainingsessions (id, date, time, location, description, createdby) 
-            VALUES (${trainingId}, '${date}', '${time}', '${location}', '${description}', '${createdby}')
+            VALUES ('${trainingId}', '${date}', '${time}', '${location}', '${description}', '${createdby}')
         `;
         
         await prisma.$executeRawUnsafe(sql);
         
-        const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = ${trainingId}` as any[];
+        const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = '${trainingId}'` as any[];
         res.json(training[0]);
     } catch (error: any) {
         console.error('Error creating training:', error);

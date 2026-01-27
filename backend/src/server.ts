@@ -378,7 +378,7 @@ app.post('/api/trainings', async (req, res) => {
         // Usar SQL puro para evitar problemas de tipo
         const sql = `
             INSERT INTO trainingsessions (id, date, time, location, description, createdby) 
-            VALUES (${trainingId}, '${date}', '${time}', '${location}', '${description}', ${createdby})
+            VALUES (${trainingId}, '${date}', '${time}', '${location}', '${description}', '${createdby}')
         `;
         
         await prisma.$executeRawUnsafe(sql);

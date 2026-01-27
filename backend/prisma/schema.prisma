@@ -12,7 +12,6 @@ model User {
   username  String   @unique
   password  String
   role      String   // "student" | "professor"
-  createdAt DateTime @default(now())
   
   student   Student?
   professor Professor?

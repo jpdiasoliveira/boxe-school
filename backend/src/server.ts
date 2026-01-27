@@ -143,7 +143,7 @@ app.post('/api/auth/login', async (req, res) => {
             }
         } else if (user.role === 'student') {
             const students = await prisma.$queryRaw`
-                SELECT id, name, email FROM students WHERE userid = ${user.id}
+                SELECT id, name, email FROM students WHERE "userId" = ${user.id}
             ` as any[];
             if (students.length > 0) {
                 additionalInfo = { student: students[0] };
@@ -197,7 +197,7 @@ app.post('/api/auth/register/student', async (req, res) => {
 
         // Inserir aluno
         await prisma.$queryRaw`
-            INSERT INTO students (id, name, email, phone, birthdate, weight, height, objective, athletetype, plantype, paymentday, joindate, active, userid) 
+            INSERT INTO students (id, name, email, phone, birthdate, weight, height, objective, athletetype, plantype, paymentday, joindate, active, "userId") 
             VALUES (${studentId}, ${studentData.name}, ${studentData.email}, ${studentData.phone}, ${studentData.birthDate}, ${studentData.weight}, ${studentData.height}, ${studentData.objective}, ${studentData.athleteType}, ${studentData.planType}, ${studentData.paymentDay}, ${studentData.joinDate || new Date().toISOString().split('T')[0]}, true, ${userId})
         `;
 

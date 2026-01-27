@@ -363,7 +363,16 @@ app.get('/api/trainings', async (req, res) => {
 // Create Training
 app.post('/api/trainings', async (req, res) => {
     try {
+        console.log('Received training data:', req.body);
         const { date, time, location, description, createdby } = req.body;
+        
+        if (!date || !time || !location || !createdby) {
+            return res.status(400).json({ 
+                error: 'Campos obrigatórios faltando: date, time, location, createdby',
+                received: { date, time, location, createdby }
+            });
+        }
+        
         const trainingId = Math.floor(Math.random() * 1000000) + 1;
         
         await prisma.$queryRaw`
@@ -373,9 +382,12 @@ app.post('/api/trainings', async (req, res) => {
         
         const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = ${trainingId}` as any[];
         res.json(training[0]);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating training:', error);
-        res.status(400).json({ error: 'Erro ao criar treino' });
+        res.status(400).json({ 
+            error: 'Erro ao criar treino',
+            details: error.message
+        });
     }
 });
 

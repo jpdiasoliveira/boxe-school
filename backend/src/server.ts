@@ -115,27 +115,46 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     try {
-        const user = await prisma.user.findUnique({
-            where: { username },
-            include: {
-                student: true,
-                professor: true
-            }
-        });
+        // Buscar usuário com SQL direto
+        const users = await prisma.$queryRaw`
+            SELECT id, username, password, role FROM users WHERE username = ${username}
+        ` as any[];
 
-        if (!user) {
+        if (users.length === 0) {
             return res.status(401).json({ error: 'Usuário não encontrado' });
         }
 
+        const user = users[0];
         const validPassword = await bcrypt.compare(password, user.password);
+        
         if (!validPassword) {
             return res.status(401).json({ error: 'Senha incorreta' });
         }
 
-        // Return user info (excluding password)
+        // Buscar informações adicionais baseado no role
+        let additionalInfo = {};
+        
+        if (user.role === 'professor') {
+            const professors = await prisma.$queryRaw`
+                SELECT id, name, email FROM professors WHERE userid = ${user.id}
+            ` as any[];
+            if (professors.length > 0) {
+                additionalInfo = { professor: professors[0] };
+            }
+        } else if (user.role === 'student') {
+            const students = await prisma.$queryRaw`
+                SELECT id, name, email FROM students WHERE userid = ${user.id}
+            ` as any[];
+            if (students.length > 0) {
+                additionalInfo = { student: students[0] };
+            }
+        }
+
+        // Retornar usuário sem senha
         const { password: _, ...userWithoutPassword } = user;
-        res.json(userWithoutPassword);
+        res.json({ ...userWithoutPassword, ...additionalInfo });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ error: 'Erro ao fazer login' });
     }
 });

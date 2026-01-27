@@ -55,7 +55,7 @@ const TrainingManager = () => {
                 time: formData.time,
                 location: formData.location,
                 description: formData.description,
-                createdBy: currentUser.profileId || currentUser.id,
+                createdby: currentUser.id, // Professor usa currentUser.id
             });
         }
 

@@ -16,6 +16,8 @@ model User {
   
   student   Student?
   professor Professor?
+  
+  @@map("users")
 }
 
 model Student {
@@ -38,6 +40,8 @@ model Student {
   user            User     @relation(fields: [userId], references: [id])
   
   attendance      Attendance[]
+  
+  @@map("students")
 }
 
 model Professor {
@@ -55,6 +59,8 @@ model Professor {
   portfolioUrl String?
   
   trainingSessions TrainingSession[]
+  
+  @@map("professors")
 }
 
 model TrainingSession {
@@ -68,6 +74,8 @@ model TrainingSession {
   professor   Professor @relation(fields: [createdBy], references: [id])
   
   attendance  Attendance[]
+  
+  @@map("trainingsessions")
 }
 
 model Attendance {
@@ -80,4 +88,6 @@ model Attendance {
   
   trainingSessionId String?
   trainingSession   TrainingSession? @relation(fields: [trainingSessionId], references: [id])
+  
+  @@map("attendance")
 }

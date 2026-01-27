@@ -61,6 +61,25 @@ async function initDatabase() {
     
     await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS students_userId_key ON students("userId");`;
     
+    await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS trainingsessions (
+      id TEXT NOT NULL,
+      date TEXT NOT NULL,
+      time TEXT NOT NULL,
+      location TEXT NOT NULL,
+      description TEXT,
+      "createdBy" TEXT NOT NULL,
+      CONSTRAINT trainingsessions_pkey PRIMARY KEY (id)
+    );`;
+    
+    await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS attendance (
+      id TEXT NOT NULL,
+      date TEXT NOT NULL,
+      present BOOLEAN NOT NULL,
+      "studentId" TEXT NOT NULL,
+      "trainingSessionId" TEXT,
+      CONSTRAINT attendance_pkey PRIMARY KEY (id)
+    );`;
+    
     console.log('✅ Database tables created/verified successfully');
   } catch (error) {
     console.error('❌ Database error:', error);

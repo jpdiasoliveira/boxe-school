@@ -402,10 +402,10 @@ app.put('/api/trainings/:id', async (req, res) => {
         await prisma.$executeRawUnsafe(`
             UPDATE trainingsessions 
             SET date = '${date}', time = '${time}', location = '${location}', description = '${description}'
-            WHERE id = ${id}
+            WHERE id = '${id}'
         `);
         
-        const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = ${id}` as any[];
+        const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = '${id}'` as any[];
         res.json(training[0]);
     } catch (error: any) {
         console.error('Error updating training:', error);
@@ -417,7 +417,7 @@ app.put('/api/trainings/:id', async (req, res) => {
 app.delete('/api/trainings/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        await prisma.$executeRawUnsafe(`DELETE FROM trainingsessions WHERE id = ${id}`);
+        await prisma.$executeRawUnsafe(`DELETE FROM trainingsessions WHERE id = '${id}'`);
         res.json({ success: true });
     } catch (error: any) {
         console.error('Error deleting training:', error);

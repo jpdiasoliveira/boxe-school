@@ -229,7 +229,7 @@ app.post('/api/auth/register/professor', async (req, res) => {
 
         // Inserir professor
         await prisma.$queryRaw`
-            INSERT INTO professors (id, name, email, "userId") 
+            INSERT INTO professors (id, name, email, userid) 
             VALUES (${professorId}, ${name}, ${email}, ${userId})
         `;
 

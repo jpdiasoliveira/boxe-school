@@ -12,8 +12,58 @@ async function initDatabase() {
   try {
     await prisma.$connect();
     console.log('✅ Database connected successfully');
+    
+    // Create tables if they don't exist
+    await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS users (
+      id TEXT NOT NULL,
+      username TEXT NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT users_pkey PRIMARY KEY (id)
+    );`;
+    
+    await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS users_username_key ON users(username);`;
+    
+    await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS professors (
+      id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      whatsapp TEXT,
+      instagram TEXT,
+      facebook TEXT,
+      bio TEXT,
+      "portfolioUrl" TEXT,
+      "userId" TEXT NOT NULL,
+      CONSTRAINT professors_pkey PRIMARY KEY (id)
+    );`;
+    
+    await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS professors_userId_key ON professors("userId");`;
+    
+    await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS students (
+      id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      "birthDate" TEXT NOT NULL,
+      weight DOUBLE PRECISION NOT NULL,
+      height DOUBLE PRECISION NOT NULL,
+      objective TEXT NOT NULL,
+      "athleteType" TEXT NOT NULL,
+      "planType" TEXT NOT NULL,
+      "paymentDay" INTEGER NOT NULL,
+      "joinDate" TEXT NOT NULL,
+      active BOOLEAN NOT NULL DEFAULT true,
+      "lastPaymentDate" TEXT,
+      "userId" TEXT NOT NULL,
+      CONSTRAINT students_pkey PRIMARY KEY (id)
+    );`;
+    
+    await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS students_userId_key ON students("userId");`;
+    
+    console.log('✅ Database tables created/verified successfully');
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    console.error('❌ Database error:', error);
     // Continue without database for now
   }
 }

@@ -202,60 +202,45 @@ app.post('/api/auth/register/professor', async (req, res) => {
     if (typeof username !== 'string' || typeof password !== 'string') {
         return res.status(400).json({ error: 'Dados inválidos' });
     }
-
-    if (username.length < 3) {
-        return res.status(400).json({ error: 'Nome de usuário deve ter no mínimo 3 caracteres' });
-    }
-
-    if (password.length < 6) {
-        return res.status(400).json({ error: 'Senha deve ter no mínimo 6 caracteres' });
-    }
-
-    if (!name || !email) {
-        return res.status(400).json({ error: 'Nome e email são obrigatórios' });
-    }
-
     try {
+        // Validar entrada
+        if (!username || !password || !name || !email) {
+            return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+        }
+
         // Verificar se usuário já existe
-        const existingUser = await prisma.user.findUnique({
-            where: { username }
-        });
-
-        if (existingUser) {
+        const existingUser = await prisma.$queryRaw`SELECT id FROM users WHERE username = ${username}`;
+        if (existingUser.length > 0) {
             return res.status(400).json({ error: 'Nome de usuário já existe' });
         }
 
+        // Hash da senha
         const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Gerar IDs
+        const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const professorId = `prof_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-        const result = await prisma.$transaction(async (prisma) => {
-            const user = await prisma.user.create({
-                data: {
-                    username,
-                    password: hashedPassword,
-                    role: 'professor'
-                }
-            });
+        // Inserir usuário
+        await prisma.$queryRaw`
+            INSERT INTO users (id, username, password, role) 
+            VALUES (${userId}, ${username}, ${hashedPassword}, 'professor')
+        `;
 
-            const professor = await prisma.professor.create({
-                data: {
-                    name,
-                    email,
-                    userId: user.id
-                }
-            });
+        // Inserir professor
+        await prisma.$queryRaw`
+            INSERT INTO professors (id, name, email, "userId") 
+            VALUES (${professorId}, ${name}, ${email}, ${userId})
+        `;
 
-            return { user, professor };
+        res.json({ 
+            message: 'Professor cadastrado com sucesso',
+            user: { id: userId, username, role: 'professor' },
+            professor: { id: professorId, name, email, userId }
         });
 
-        res.json(result);
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error registering professor:', error);
-        
-        // Verificar erro de constraint única
-        if (error.code === 'P2002') {
-            return res.status(400).json({ error: 'Nome de usuário já existe' });
-        }
-        
         res.status(500).json({ error: 'Erro ao registrar professor' });
     }
 });

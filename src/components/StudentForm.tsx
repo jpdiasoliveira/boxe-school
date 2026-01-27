@@ -11,7 +11,7 @@ interface StudentFormProps {
 
 const StudentForm: React.FC<StudentFormProps> = ({ student, onSave, onUpdate, onClose }) => {
     const [formData, setFormData] = useState<Omit<Student, 'id'>>({
-        userId: '',
+        userid: '',
         username: '',
         name: '',
         email: '',
@@ -33,7 +33,7 @@ const StudentForm: React.FC<StudentFormProps> = ({ student, onSave, onUpdate, on
     useEffect(() => {
         if (student) {
             setFormData({
-                userId: student.userId || '',
+                userid: student.userid || '',
                 username: student.username || '',
                 name: student.name || '',
                 email: student.email || '',

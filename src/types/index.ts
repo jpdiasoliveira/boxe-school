@@ -41,7 +41,7 @@ export interface TrainingSession {
 
 export interface Student {
     id: string;
-    userId: string;
+    userid: string;
     username: string;
     name: string;
     email: string;
@@ -64,7 +64,7 @@ export interface Professor {
     id: string;
     name: string;
     email: string;
-    userId: string;
+    userid: string;
     whatsapp?: string;
     instagram?: string;
     facebook?: string;

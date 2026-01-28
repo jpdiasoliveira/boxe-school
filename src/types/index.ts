@@ -36,7 +36,7 @@ export interface TrainingSession {
     time: string; // e.g., "19:00"
     location: string;
     description?: string;
-    createdBy: string; // professor ID
+    createdby: string; // professor ID
 }
 
 export interface Student {

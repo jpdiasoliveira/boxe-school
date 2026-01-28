@@ -26,7 +26,7 @@ const StudentDashboard = () => {
 
   // In a real app, we'd fetch the specific student data. 
   // Here we find the student that matches the logged in profile ID
-  const student = students.find((s: Student) => s.userid === currentUser?.profileId || s.id === currentUser?.profileId);
+  const student = students.find((s: Student) => s.userId === currentUser?.profileId || s.id === currentUser?.profileId);
 
   const status = student ? getStudentStatus(student) : 'active';
   const isOverdue = status === 'overdue';

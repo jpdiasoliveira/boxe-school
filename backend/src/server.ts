@@ -447,36 +447,30 @@ app.post('/api/attendance', async (req, res) => {
 
     try {
         // Check if exists to update, or create new
-        // For simplicity, we'll just create or update based on a find
-        // Ideally we'd use upsert but we need a unique constraint on studentId + trainingSessionId
+        const existing = await prisma.$queryRaw`
+            SELECT * FROM attendance WHERE studentId = ${studentId} AND trainingSessionId = ${trainingSessionId}
+        ` as any[];
 
-        // Let's find existing first
-        const existing = await prisma.attendance.findFirst({
-            where: {
-                studentId,
-                trainingSessionId
-            }
-        });
-
-        if (existing) {
-            const updated = await prisma.attendance.update({
-                where: { id: existing.id },
-                data: { present }
-            });
-            res.json(updated);
+        if (existing.length > 0) {
+            // Update existing
+            await prisma.$executeRawUnsafe(`
+                UPDATE attendance 
+                SET present = ${present}, date = '${date}'
+                WHERE studentId = ${studentId} AND trainingSessionId = ${trainingSessionId}
+            `);
+            res.json({ success: true, updated: true });
         } else {
-            const created = await prisma.attendance.create({
-                data: {
-                    studentId,
-                    trainingSessionId,
-                    present,
-                    date
-                }
-            });
-            res.json(created);
+            // Create new
+            const attendanceId = Math.floor(Math.random() * 1000000) + 1;
+            await prisma.$executeRawUnsafe(`
+                INSERT INTO attendance (id, studentId, trainingSessionId, present, date)
+                VALUES ('${attendanceId}', ${studentId}, ${trainingSessionId}, ${present}, '${date}')
+            `);
+            res.json({ success: true, created: true });
         }
-    } catch (error) {
-        res.status(400).json({ error: 'Erro ao marcar presença' });
+    } catch (error: any) {
+        console.error('Error marking attendance:', error);
+        res.status(400).json({ error: 'Erro ao marcar presença', details: error.message });
     }
 });
 

@@ -101,14 +101,14 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             localStorage.setItem('boxing_user', JSON.stringify(currentUser));
 
             try {
-                const [trainings, professorsData] = await Promise.all([
-                    apiCall('/trainings'),
-                    apiCall('/professors')
-                ]);
+                const trainings = await apiCall('/trainings');
                 setTrainingSessions(trainings);
-                setProfessors(professorsData);
 
+                // Só buscar professores se for professor
                 if (currentUser.role === 'professor') {
+                    const professorsData = await apiCall('/professors');
+                    setProfessors(professorsData);
+                    
                     const [studentsData, attendanceData] = await Promise.all([
                         apiCall('/students'),
                         apiCall('/attendance')
@@ -116,6 +116,8 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     setStudents(studentsData);
                     setAttendance(attendanceData);
                 } else {
+                    // Para alunos, não buscar professores
+                    setProfessors([]);
                     const attendanceData = await apiCall('/attendance');
                     setAttendance(attendanceData);
                     const studentsData = await apiCall('/students');

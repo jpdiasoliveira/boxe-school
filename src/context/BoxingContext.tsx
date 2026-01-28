@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { parseISO, isAfter, isValid, addMonths } from 'date-fns';
 import type { Student, Attendance, Professor, TrainingSession, PricingConfig } from '../types';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://backend-kappa-two-37.vercel.app/api';
 
 const DEFAULT_PRICING: PricingConfig = {
     monthly: { athlete: 120, functional: 100, private: 200 },
@@ -98,6 +98,8 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 return;
             }
 
+            setLoading(true);
+
             localStorage.setItem('boxing_user', JSON.stringify(currentUser));
 
             try {
@@ -121,7 +123,12 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     const attendanceData = await apiCall('/attendance');
                     setAttendance(attendanceData);
                     const studentsData = await apiCall('/students');
-                    const student = studentsData.find((s: any) => s.userid === currentUser?.id);
+                    const student = studentsData.find((s: any) =>
+                        s.userid === currentUser?.profileId ||
+                        s.id === currentUser?.profileId ||
+                        s.userid === currentUser?.id ||
+                        s.id === currentUser?.id
+                    );
                     setStudents(student ? [student] : []);
                 }
             } catch (error) {
@@ -190,7 +197,14 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     id: user.id,
                     username: user.username,
                     role: user.role as 'professor' | 'student',
-                    profileId: user.student?.id || user.professor?.id
+                    profileId:
+                        user.profileId ||
+                        user.student?.userid ||
+                        user.student?.userId ||
+                        user.student?.id ||
+                        user.professor?.userid ||
+                        user.professor?.userId ||
+                        user.professor?.id
                 });
                 return { role: user.role };
             }

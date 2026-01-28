@@ -2,7 +2,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { parseISO, isAfter, isValid, addMonths } from 'date-fns';
 import type { Student, Attendance, Professor, TrainingSession, PricingConfig } from '../types';
 
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://backend-kappa-two-37.vercel.app/api';
+const API_URL =
+    (import.meta as any).env?.VITE_API_URL ||
+    (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+        ? 'http://localhost:3001/api'
+        : 'https://backend-kappa-two-37.vercel.app/api');
 
 const DEFAULT_PRICING: PricingConfig = {
     monthly: { athlete: 120, functional: 100, private: 200 },
@@ -197,14 +201,7 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     id: user.id,
                     username: user.username,
                     role: user.role as 'professor' | 'student',
-                    profileId:
-                        user.profileId ||
-                        user.student?.userid ||
-                        user.student?.userId ||
-                        user.student?.id ||
-                        user.professor?.userid ||
-                        user.professor?.userId ||
-                        user.professor?.id
+                    profileId: user.student?.id || user.professor?.id
                 });
                 return { role: user.role };
             }

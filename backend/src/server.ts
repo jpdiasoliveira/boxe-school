@@ -448,7 +448,7 @@ app.post('/api/attendance', async (req, res) => {
     try {
         // Check if exists to update, or create new
         const existing = await prisma.$queryRaw`
-            SELECT * FROM attendance WHERE studentId = ${studentId} AND trainingSessionId = ${trainingSessionId}
+            SELECT * FROM attendance WHERE "studentId" = ${studentId} AND "trainingSessionId" = ${trainingSessionId}
         ` as any[];
 
         if (existing.length > 0) {
@@ -456,14 +456,14 @@ app.post('/api/attendance', async (req, res) => {
             await prisma.$executeRawUnsafe(`
                 UPDATE attendance 
                 SET present = ${present}, date = '${date}'
-                WHERE studentId = ${studentId} AND trainingSessionId = ${trainingSessionId}
+                WHERE "studentId" = ${studentId} AND "trainingSessionId" = ${trainingSessionId}
             `);
             res.json({ success: true, updated: true });
         } else {
             // Create new
             const attendanceId = Math.floor(Math.random() * 1000000) + 1;
             await prisma.$executeRawUnsafe(`
-                INSERT INTO attendance (id, studentId, trainingSessionId, present, date)
+                INSERT INTO attendance (id, "studentId", "trainingSessionId", present, date)
                 VALUES ('${attendanceId}', ${studentId}, ${trainingSessionId}, ${present}, '${date}')
             `);
             res.json({ success: true, created: true });

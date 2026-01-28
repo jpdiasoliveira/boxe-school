@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { parseISO, isAfter, isValid, addMonths } from 'date-fns';
 import type { Student, Attendance, Professor, TrainingSession, PricingConfig } from '../types';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://backend-kappa-two-37.vercel.app/api';
 
 const DEFAULT_PRICING: PricingConfig = {
     monthly: { athlete: 120, functional: 100, private: 200 },

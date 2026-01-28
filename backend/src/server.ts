@@ -136,19 +136,19 @@ app.post('/api/auth/login', async (req, res) => {
         
         if (user.role === 'professor') {
             const professors = await prisma.$queryRaw`
-                SELECT id, name, email FROM professors WHERE userId = ${user.id}
+                SELECT id, name, email FROM professors WHERE userid = ${user.id}
             ` as any[];
             if (professors.length > 0) {
                 additionalInfo = { professor: professors[0] };
             }
         } else if (user.role === 'student') {
             const students = await prisma.$queryRaw`
-                SELECT id, name, email, userId FROM students WHERE userId = ${user.id}
+                SELECT id, name, email, userid FROM students WHERE userid = ${user.id}
             ` as any[];
             if (students.length > 0) {
                 additionalInfo = { 
                     student: students[0],
-                    profileId: students[0].userId.toString() // Adicionar profileId
+                    profileId: students[0].userid.toString() // Adicionar profileId
                 };
             }
         }
@@ -317,7 +317,7 @@ app.put('/api/professors/:id', async (req, res) => {
 app.get('/api/students', async (req, res) => {
     try {
         const students = await prisma.$queryRaw`
-            SELECT id, name, email, phone, birthDate, weight, height, objective, athleteType, planType, paymentDay, joinDate, active, lastPaymentDate, userId 
+            SELECT id, name, email, phone, birthDate, weight, height, objective, athleteType, planType, paymentDay, joinDate, active, lastPaymentDate, userid 
             FROM students
         ` as any[];
         res.json(students);

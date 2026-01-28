@@ -34,7 +34,8 @@ const ProfessorRegistration = () => {
             const success = await registerProfessor(
                 {
                     name: formData.name,
-                    email: formData.email
+                    email: formData.email,
+                    userid: '' // Será preenchido no backend
                 },
                 formData.password,
                 formData.username

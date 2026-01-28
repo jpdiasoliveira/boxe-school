@@ -35,7 +35,7 @@ const ProfessorRegistration = () => {
                 {
                     name: formData.name,
                     email: formData.email,
-                    userid: '', // Será preenchido no backend
+                    userId: '', // Será preenchido no backend
                 },
                 formData.password,
                 formData.username

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { parseISO, isAfter, isValid, addMonths } from 'date-fns';
 import type { Student, Attendance, Professor, TrainingSession, PricingConfig } from '../types';
 
-const API_URL = 'https://backend-kappa-two-37.vercel.app/api';
+const API_URL = 'http://localhost:3001/api';
 
 const DEFAULT_PRICING: PricingConfig = {
     monthly: { athlete: 120, functional: 100, private: 200 },
@@ -119,7 +119,7 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     const attendanceData = await apiCall('/attendance');
                     setAttendance(attendanceData);
                     const studentsData = await apiCall('/students');
-                    const student = studentsData.find((s: any) => s.userid === currentUser?.id);
+                    const student = studentsData.find((s: any) => s.userId === currentUser?.id);
                     setStudents(student ? [student] : []);
                 }
             } catch (error) {

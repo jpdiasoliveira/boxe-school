@@ -524,7 +524,17 @@ app.delete('/api/trainings/:id', async (req, res) => {
 app.get('/api/attendance', async (req, res) => {
     try {
         const attendance = await prisma.$queryRaw`SELECT * FROM attendance` as any[];
-        res.json(attendance);
+        
+        // Mapear para os nomes esperados pelo frontend
+        const mappedAttendance = attendance.map((att: any) => ({
+            id: att.id,
+            date: att.date,
+            present: att.present,
+            studentId: att.studentld,  // Mapear studentld -> studentId
+            trainingSessionId: att.trainingsessionld  // Mapear trainingsessionld -> trainingSessionId
+        }));
+        
+        res.json(mappedAttendance);
     } catch (error) {
         console.error('Error fetching attendance:', error);
         res.status(500).json({ error: 'Erro ao buscar presença' });

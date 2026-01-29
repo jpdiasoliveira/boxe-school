@@ -34,6 +34,14 @@ const TrainingSchedule = () => {
     const handleConfirm = (trainingId: string, trainingDate: string, trainingTime: string, willAttend: boolean) => {
         if (!currentUser) return;
 
+        console.log('🎯 Button clicked:', {
+            trainingId,
+            trainingDate,
+            trainingTime,
+            willAttend,
+            trainingDetails: upcomingTrainings.find(t => t.id === trainingId)
+        });
+
         if (!canConfirmAttendance(trainingDate, trainingTime)) {
             alert('Você só pode confirmar presença entre 3 dias e 1 hora antes do treino!');
             return;

@@ -10,10 +10,11 @@ const PORT = process.env.PORT || 3001;
 // Initialize database
 async function initDatabase() {
   try {
+    console.log('🔄 Connecting to database...');
     await prisma.$connect();
     console.log('✅ Database connected successfully');
     
-    // Create tables if they don't exist
+    console.log('🔄 Creating users table...');
     await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS users (
       id TEXT NOT NULL,
       username TEXT NOT NULL,
@@ -22,9 +23,11 @@ async function initDatabase() {
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT users_pkey PRIMARY KEY (id)
     );`;
+    console.log('✅ Users table created/verified');
     
     await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS users_username_key ON users(username);`;
     
+    console.log('🔄 Creating professors table...');
     await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS professors (
       id TEXT NOT NULL,
       name TEXT NOT NULL,
@@ -37,9 +40,11 @@ async function initDatabase() {
       "userid" TEXT NOT NULL,
       CONSTRAINT professors_pkey PRIMARY KEY (id)
     );`;
+    console.log('✅ Professors table created/verified');
     
     await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS professors_userid_key ON professors("userid");`;
     
+    console.log('🔄 Creating students table...');
     await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS students (
       id TEXT NOT NULL,
       name TEXT NOT NULL,
@@ -58,9 +63,11 @@ async function initDatabase() {
       "userid" TEXT NOT NULL,
       CONSTRAINT students_pkey PRIMARY KEY (id)
     );`;
+    console.log('✅ Students table created/verified');
     
     await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS students_userid_key ON students("userid");`;
     
+    console.log('🔄 Creating trainingsessions table...');
     await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS trainingsessions (
       id TEXT NOT NULL,
       date TEXT NOT NULL,
@@ -70,7 +77,9 @@ async function initDatabase() {
       createdby TEXT NOT NULL,
       CONSTRAINT trainingsessions_pkey PRIMARY KEY (id)
     );`;
+    console.log('✅ Training sessions table created/verified');
     
+    console.log('🔄 Creating attendance table...');
     await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS attendance (
       id TEXT NOT NULL,
       date TEXT NOT NULL,
@@ -79,11 +88,12 @@ async function initDatabase() {
       "trainingSessionId" TEXT,
       CONSTRAINT attendance_pkey PRIMARY KEY (id)
     );`;
+    console.log('✅ Attendance table created/verified');
     
-    console.log('✅ Database tables created/verified successfully');
+    console.log('✅ All database tables created/verified successfully');
   } catch (error) {
     console.error('❌ Database error:', error);
-    // Continue without database for now
+    throw error; // Re-throw to see the error in logs
   }
 }
 
@@ -492,7 +502,25 @@ app.post('/api/attendance', async (req, res) => {
     }
 });
 
+// Initialize Database Manually
+app.post('/api/init-db', async (req, res) => {
+    try {
+        console.log('🔄 Manual database initialization started...');
+        await initDatabase();
+        console.log('✅ Manual database initialization completed');
+        res.json({ success: true, message: 'Database initialized successfully' });
+    } catch (error: any) {
+        console.error('❌ Manual database initialization failed:', error);
+        res.status(500).json({ error: 'Database initialization failed', details: error.message });
+    }
+});
+
 app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
-    await initDatabase();
+    try {
+        await initDatabase();
+        console.log('✅ Auto database initialization completed');
+    } catch (error) {
+        console.error('❌ Auto database initialization failed:', error);
+    }
 });

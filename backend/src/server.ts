@@ -34,11 +34,11 @@ async function initDatabase() {
       facebook TEXT,
       bio TEXT,
       "portfolioUrl" TEXT,
-      "userId" TEXT NOT NULL,
+      "userid" TEXT NOT NULL,
       CONSTRAINT professors_pkey PRIMARY KEY (id)
     );`;
     
-    await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS professors_userId_key ON professors("userId");`;
+    await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS professors_userid_key ON professors("userid");`;
     
     await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS students (
       id TEXT NOT NULL,
@@ -55,11 +55,11 @@ async function initDatabase() {
       "joinDate" TEXT NOT NULL,
       active BOOLEAN NOT NULL DEFAULT true,
       "lastPaymentDate" TEXT,
-      "userId" TEXT NOT NULL,
+      "userid" TEXT NOT NULL,
       CONSTRAINT students_pkey PRIMARY KEY (id)
     );`;
     
-    await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS students_userId_key ON students("userId");`;
+    await prisma.$executeRaw`CREATE UNIQUE INDEX IF NOT EXISTS students_userid_key ON students("userid");`;
     
     await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS trainingsessions (
       id TEXT NOT NULL,
@@ -136,14 +136,14 @@ app.post('/api/auth/login', async (req, res) => {
         
         if (user.role === 'professor') {
             const professors = await prisma.$queryRaw`
-                SELECT id, name, email FROM professors WHERE userid = ${user.id}
+                SELECT id, name, email FROM professors WHERE "userid" = ${user.id}
             ` as any[];
             if (professors.length > 0) {
                 additionalInfo = { professor: professors[0] };
             }
         } else if (user.role === 'student') {
             const students = await prisma.$queryRaw`
-                SELECT id, name, email, userid FROM students WHERE userid = ${user.id}
+                SELECT id, name, email, "userid" FROM students WHERE "userid" = ${user.id}
             ` as any[];
             if (students.length > 0) {
                 additionalInfo = { 
@@ -200,7 +200,7 @@ app.post('/api/auth/register/student', async (req, res) => {
 
         // Inserir aluno
         await prisma.$queryRaw`
-            INSERT INTO students (id, name, email, phone, birthdate, weight, height, objective, athletetype, plantype, paymentday, joindate, active, userid) 
+            INSERT INTO students (id, name, email, phone, "birthDate", weight, height, objective, "athleteType", "planType", "paymentDay", "joinDate", active, "userid") 
             VALUES (${studentId}, ${studentData.name}, ${studentData.email}, ${studentData.phone}, ${studentData.birthDate}, ${studentData.weight}, ${studentData.height}, ${studentData.objective}, ${studentData.athleteType}, ${studentData.planType}, ${studentData.paymentDay}, ${studentData.joinDate || new Date().toISOString().split('T')[0]}, true, ${userId})
         `;
 
@@ -260,7 +260,7 @@ app.post('/api/auth/register/professor', async (req, res) => {
 
         // Inserir professor
         await prisma.$queryRaw`
-            INSERT INTO professors (id, name, email, userid) 
+            INSERT INTO professors (id, name, email, "userid") 
             VALUES (${professorId}, ${name}, ${email}, ${userId})
         `;
 
@@ -317,7 +317,7 @@ app.put('/api/professors/:id', async (req, res) => {
 app.get('/api/students', async (req, res) => {
     try {
         const students = await prisma.$queryRaw`
-            SELECT id, name, email, phone, birthDate, weight, height, objective, athleteType, planType, paymentDay, joinDate, active, lastPaymentDate, userid 
+            SELECT id, name, email, phone, "birthDate", weight, height, objective, "athleteType", "planType", "paymentDay", "joinDate", active, "lastPaymentDate", "userid" 
             FROM students
         ` as any[];
         res.json(students);
@@ -331,12 +331,26 @@ app.get('/api/students', async (req, res) => {
 app.put('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const student = await prisma.student.update({
-            where: { id },
-            data: req.body
-        });
-        res.json(student);
+        const { name, email, phone, birthDate, weight, height, objective, athleteType, planType, paymentDay, active, lastPaymentDate } = req.body;
+        
+        await prisma.$executeRawUnsafe(`
+            UPDATE students 
+            SET name = '${name}', email = '${email}', phone = '${phone}', "birthDate" = '${birthDate}', 
+                weight = ${weight}, height = ${height}, objective = '${objective}', 
+                "athleteType" = '${athleteType}', "planType" = '${planType}', 
+                "paymentDay" = ${paymentDay}, active = ${active}, "lastPaymentDate" = '${lastPaymentDate}'
+            WHERE "userid" = '${id}'
+        `);
+        
+        // Buscar o aluno atualizado
+        const updatedStudent = await prisma.$queryRaw`
+            SELECT id, name, email, phone, "birthDate", weight, height, objective, "athleteType", "planType", "paymentDay", "joinDate", active, "lastPaymentDate", "userid" 
+            FROM students WHERE "userid" = ${id}
+        ` as any[];
+        
+        res.json(updatedStudent[0]);
     } catch (error) {
+        console.error('Error updating student:', error);
         res.status(400).json({ error: 'Erro ao atualizar aluno' });
     }
 });
@@ -345,7 +359,7 @@ app.put('/api/students/:id', async (req, res) => {
 app.delete('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        await prisma.$executeRawUnsafe(`DELETE FROM students WHERE userid = '${id}'`);
+        await prisma.$executeRawUnsafe(`DELETE FROM students WHERE "userid" = '${id}'`);
         res.json({ success: true });
     } catch (error: any) {
         console.error('Error deleting student:', error);

@@ -35,8 +35,8 @@ model Student {
   active          Boolean  @default(true)
   lastPaymentDate String?
   
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id])
+  userid          String   @unique
+  user            User     @relation(fields: [userid], references: [id])
   
   attendance      Attendance[]
   
@@ -48,8 +48,8 @@ model Professor {
   name     String
   email    String
   
-  userId   String @unique
-  user     User   @relation(fields: [userId], references: [id])
+  userid   String @unique
+  user     User   @relation(fields: [userid], references: [id])
 
   whatsapp  String?
   instagram String?

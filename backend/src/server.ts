@@ -502,6 +502,89 @@ app.post('/api/attendance', async (req, res) => {
     }
 });
 
+// Create Test Users
+app.post('/api/create-test-users', async (req, res) => {
+    try {
+        console.log('🔄 Creating test users...');
+        
+        const hashedPassword = await bcrypt.hash('123456', 10);
+        
+        // Professor
+        const professorUserId = 'prof-user-001';
+        const professorId = 'prof-001';
+        
+        // Aluno  
+        const studentUserId = 'student-user-001';
+        const studentId = 'student-001';
+        
+        // Verificar se já existem
+        const existingProfessor = await prisma.$queryRaw`
+            SELECT id FROM users WHERE username = 'professor2025'
+        ` as any[];
+        
+        const existingStudent = await prisma.$queryRaw`
+            SELECT id FROM users WHERE username = 'testenovo2025'
+        ` as any[];
+        
+        if (existingProfessor.length === 0) {
+            // Criar professor
+            await prisma.$queryRaw`
+                INSERT INTO users (id, username, password, role) 
+                VALUES (${professorUserId}, 'professor2025', ${hashedPassword}, 'professor')
+            `;
+            
+            await prisma.$queryRaw`
+                INSERT INTO professors (id, name, email, "userid") 
+                VALUES (${professorId}, 'Professor Padrão', 'professor@boxe-school.com', ${professorUserId})
+            `;
+            
+            console.log('✅ Professor user created');
+        }
+        
+        if (existingStudent.length === 0) {
+            // Criar aluno
+            await prisma.$queryRaw`
+                INSERT INTO users (id, username, password, role) 
+                VALUES (${studentUserId}, 'testenovo2025', ${hashedPassword}, 'student')
+            `;
+            
+            await prisma.$queryRaw`
+                INSERT INTO students (id, name, email, phone, "birthDate", weight, height, objective, "athleteType", "planType", "paymentDay", "joinDate", active, "userid") 
+                VALUES (${studentId}, 'Aluno Teste', 'aluno@boxe-school.com', '11987654321', '2000-01-01', 70.5, 175.0, 'Perder peso', 'functional', 'monthly', 10, '2026-01-29', true, ${studentUserId})
+            `;
+            
+            console.log('✅ Student user created');
+        }
+        
+        // Criar treino de exemplo
+        const existingTraining = await prisma.$queryRaw`
+            SELECT id FROM trainingsessions LIMIT 1
+        ` as any[];
+        
+        if (existingTraining.length === 0) {
+            await prisma.$queryRaw`
+                INSERT INTO trainingsessions (id, date, time, location, description, createdby)
+                VALUES ('training-001', '2026-01-30', '19:00', 'Boxe School - Sala Principal', 'Treino de Muay Thai', ${professorId})
+            `;
+            
+            console.log('✅ Training session created');
+        }
+        
+        console.log('✅ Test users created successfully');
+        res.json({ 
+            success: true, 
+            message: 'Test users created successfully',
+            users: {
+                professor: { username: 'professor2025', password: '123456' },
+                student: { username: 'testenovo2025', password: '123456' }
+            }
+        });
+    } catch (error: any) {
+        console.error('❌ Error creating test users:', error);
+        res.status(500).json({ error: 'Error creating test users', details: error.message });
+    }
+});
+
 // Initialize Database Manually
 app.post('/api/init-db', async (req, res) => {
     try {

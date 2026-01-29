@@ -323,6 +323,39 @@ app.put('/api/professors/:id', async (req, res) => {
 
 // --- Data Routes ---
 
+// Check Table Structure
+app.get('/api/check-tables', async (req, res) => {
+    try {
+        console.log('🔄 Checking table structure...');
+        
+        // Verificar estrutura da tabela students
+        const studentsStructure = await prisma.$queryRaw`
+            SELECT column_name, data_type, is_nullable 
+            FROM information_schema.columns 
+            WHERE table_name = 'students' 
+            ORDER BY ordinal_position
+        ` as any[];
+        
+        // Verificar se tabela existe
+        const tables = await prisma.$queryRaw`
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public'
+        ` as any[];
+        
+        console.log('✅ Tables:', tables);
+        console.log('✅ Students structure:', studentsStructure);
+        
+        res.json({ 
+            tables,
+            studentsStructure
+        });
+    } catch (error: any) {
+        console.error('❌ Error checking tables:', error);
+        res.status(500).json({ error: 'Error checking tables', details: error.message });
+    }
+});
+
 // Get Students
 app.get('/api/students', async (req, res) => {
     try {

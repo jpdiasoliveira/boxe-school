@@ -361,12 +361,32 @@ app.get('/api/students', async (req, res) => {
     try {
         console.log('🔄 Fetching students...');
         const students = await prisma.$queryRaw`
-            SELECT id, name, email, phone, "birthDate", weight, height, objective, "athleteType", "planType", "paymentDay", "joinDate", active, "lastPaymentDate", "userid" 
+            SELECT id, name, email, phone, birthdate, weight, height, objective, athletetype, plantype, paymentday, joindate, active, lastpaymentdate, userld 
             FROM students
         ` as any[];
         console.log('✅ Students fetched successfully:', students.length, 'students found');
-        res.json(students);
-    } catch (error) {
+        
+        // Mapear para os nomes esperados pelo frontend
+        const mappedStudents = students.map((student: any) => ({
+            id: student.id,
+            name: student.name,
+            email: student.email,
+            phone: student.phone,
+            birthDate: student.birthdate,
+            weight: student.weight,
+            height: student.height,
+            objective: student.objective,
+            athleteType: student.athletetype,
+            planType: student.plantype,
+            paymentDay: student.paymentday,
+            joinDate: student.joindate,
+            active: student.active,
+            lastPaymentDate: student.lastpaymentdate,
+            userid: student.userld
+        }));
+        
+        res.json(mappedStudents);
+    } catch (error: any) {
         console.error('❌ Error fetching students:', error);
         console.error('❌ Full error details:', JSON.stringify(error, null, 2));
         res.status(500).json({ error: 'Erro ao buscar alunos', details: error.message });

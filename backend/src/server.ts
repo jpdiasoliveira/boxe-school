@@ -344,6 +344,14 @@ app.get('/api/check-tables', async (req, res) => {
             ORDER BY ordinal_position
         ` as any[];
         
+        // Verificar estrutura da tabela trainingsessions
+        const trainingsStructure = await prisma.$queryRaw`
+            SELECT column_name, data_type, is_nullable 
+            FROM information_schema.columns 
+            WHERE table_name = 'trainingsessions' 
+            ORDER BY ordinal_position
+        ` as any[];
+        
         // Verificar se tabela existe
         const tables = await prisma.$queryRaw`
             SELECT table_name 
@@ -354,11 +362,13 @@ app.get('/api/check-tables', async (req, res) => {
         console.log('✅ Tables:', tables);
         console.log('✅ Students structure:', studentsStructure);
         console.log('✅ Attendance structure:', attendanceStructure);
+        console.log('✅ Trainings structure:', trainingsStructure);
         
         res.json({ 
             tables,
             studentsStructure,
-            attendanceStructure
+            attendanceStructure,
+            trainingsStructure
         });
     } catch (error: any) {
         console.error('❌ Error checking tables:', error);

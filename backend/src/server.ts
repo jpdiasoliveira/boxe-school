@@ -488,7 +488,9 @@ app.post('/api/trainings', async (req, res) => {
         
         await prisma.$executeRawUnsafe(sql);
         
+        console.log('🔍 Searching for created training with ID:', trainingId);
         const training = await prisma.$queryRaw`SELECT id, date, time, location, description, creatdby as createdby FROM trainingsessions WHERE id = '${trainingId}'` as any[];
+        console.log('🎯 Found training:', training);
         res.json(training[0]);
     } catch (error: any) {
         console.error('Error creating training:', error);

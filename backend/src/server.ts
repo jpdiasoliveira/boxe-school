@@ -491,7 +491,16 @@ app.post('/api/trainings', async (req, res) => {
         console.log('🔍 Searching for created training with ID:', trainingId);
         const training = await prisma.$queryRaw`SELECT id, date, time, location, description, creatdby as createdby FROM trainingsessions WHERE id = '${trainingId}'` as any[];
         console.log('🎯 Found training:', training);
-        res.json(training[0]);
+        
+        if (training.length > 0) {
+            res.json(training[0]);
+        } else {
+            res.json({ 
+                success: true, 
+                message: 'Training created successfully',
+                trainingId: trainingId 
+            });
+        }
     } catch (error: any) {
         console.error('Error creating training:', error);
         res.status(400).json({ 

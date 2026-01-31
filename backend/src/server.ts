@@ -457,7 +457,7 @@ app.delete('/api/students/:id', async (req, res) => {
 app.get('/api/trainings', async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
-        const trainings = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE date >= ${today} ORDER BY date, time` as any[];
+        const trainings = await prisma.$queryRaw`SELECT id, date, time, location, description, creatdby as createdby FROM trainingsessions WHERE date >= ${today} ORDER BY date, time` as any[];
         res.json(trainings);
     } catch (error) {
         console.error('Error fetching trainings:', error);
@@ -480,15 +480,15 @@ app.post('/api/trainings', async (req, res) => {
         
         const trainingId = Math.floor(Math.random() * 1000000) + 1;
         
-        // Usar SQL puro para evitar problemas de tipo
+        // Usar SQL puro com nomes corretos das colunas
         const sql = `
-            INSERT INTO trainingsessions (id, date, time, location, description, createdby) 
+            INSERT INTO trainingsessions (id, date, time, location, description, creatdby) 
             VALUES ('${trainingId}', '${date}', '${time}', '${location}', '${description}', '${createdby}')
         `;
         
         await prisma.$executeRawUnsafe(sql);
         
-        const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = '${trainingId}'` as any[];
+        const training = await prisma.$queryRaw`SELECT id, date, time, location, description, creatdby as createdby FROM trainingsessions WHERE id = '${trainingId}'` as any[];
         res.json(training[0]);
     } catch (error: any) {
         console.error('Error creating training:', error);
@@ -510,7 +510,7 @@ app.put('/api/trainings/:id', async (req, res) => {
             WHERE id = '${id}'
         `);
         
-        const training = await prisma.$queryRaw`SELECT * FROM trainingsessions WHERE id = '${id}'` as any[];
+        const training = await prisma.$queryRaw`SELECT id, date, time, location, description, creatdby as createdby FROM trainingsessions WHERE id = '${id}'` as any[];
         res.json(training[0]);
     } catch (error: any) {
         console.error('Error updating training:', error);
@@ -649,8 +649,8 @@ app.post('/api/create-test-users', async (req, res) => {
         
         if (existingTraining.length === 0) {
             await prisma.$queryRaw`
-                INSERT INTO trainingsessions (id, date, time, location, description, createdby)
-                VALUES ('training-001', '2026-01-30', '19:00', 'Boxe School - Sala Principal', 'Treino de Muay Thai', ${professorId})
+                INSERT INTO trainingsessions (id, date, time, location, description, creatdby)
+                VALUES ('training-001', '2026-01-30', '19:00', 'Boxe School - Sala Principal', 'Treino de Muay Thai', '${professorId}')
             `;
             
             console.log('✅ Training session created');

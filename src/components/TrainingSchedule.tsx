@@ -16,14 +16,22 @@ const TrainingSchedule = () => {
         if (!currentUser) return null;
         // Use profileId (Student ID) if available, otherwise fallback to id (User ID)
         const studentId = currentUser.profileId || currentUser.id;
-        return attendance.find(a => a.trainingSessionId === trainingId && a.studentId === studentId);
+        console.log('🔍 Searching attendance for training:', {
+            trainingId,
+            studentId,
+            currentUser: { id: currentUser.id, profileId: currentUser.profileId }
+        });
+        
+        const found = attendance.find(a => a.trainingSessionId === trainingId && a.studentId === studentId);
+        console.log('🎯 Found attendance:', found);
+        return found;
     };
 
     const handleConfirm = (trainingId: string, trainingDate: string, trainingTime: string, willAttend: boolean) => {
         if (!currentUser) return;
 
         if (!canConfirmAttendance(trainingDate, trainingTime)) {
-            alert('Você só pode confirmar presença entre 3 dias e 1 hora antes do treino!');
+            alert('Você só pode confirmar presença entre 3 dias antes e até o horário do treino!');
             return;
         }
 

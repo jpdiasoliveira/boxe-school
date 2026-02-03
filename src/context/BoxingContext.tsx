@@ -107,26 +107,32 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             localStorage.setItem('boxing_user', JSON.stringify(currentUser));
 
             try {
-                const trainings = await apiCall('/trainings');
-                setTrainingSessions(trainings);
+                // Fazer todas as requisições em paralelo
+                const requests = [
+                    apiCall('/trainings'),
+                    apiCall('/attendance')
+                ];
 
-                // Só buscar professores se for professor
+                // Adicionar requisições específicas por role
                 if (currentUser.role === 'professor') {
-                    const professorsData = await apiCall('/professors');
-                    setProfessors(professorsData);
-                    
-                    const [studentsData, attendanceData] = await Promise.all([
-                        apiCall('/students'),
-                        apiCall('/attendance')
-                    ]);
-                    setStudents(studentsData);
-                    setAttendance(attendanceData);
+                    requests.push(apiCall('/professors'), apiCall('/students'));
                 } else {
-                    // Para alunos, não buscar professores
+                    requests.push(apiCall('/students'));
+                }
+
+                const results = await Promise.all(requests);
+                
+                // Processar resultados
+                setTrainingSessions(results[0]); // trainings
+                setAttendance(results[1]); // attendance
+
+                if (currentUser.role === 'professor') {
+                    setProfessors(results[2]); // professors
+                    setStudents(results[3]); // students
+                } else {
+                    // Para alunos, encontrar apenas o próprio cadastro
                     setProfessors([]);
-                    const attendanceData = await apiCall('/attendance');
-                    setAttendance(attendanceData);
-                    const studentsData = await apiCall('/students');
+                    const studentsData = results[2]; // students
                     const student = studentsData.find((s: any) =>
                         s.userid === currentUser?.profileId ||
                         s.id === currentUser?.profileId ||
@@ -336,12 +342,12 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             if (!isValid(trainingDateTime)) return false;
 
             const diffInMs = trainingDateTime.getTime() - today.getTime();
-            const diffInHours = diffInMs / (1000 * 60 * 60);
             const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
 
-            // Can confirm up to 3 days before AND at least 1 hour before
-            return diffInDays <= 3 && diffInHours >= 1;
+            // Can confirm up to 3 days before AND up to the training time (no longer 1 hour limit)
+            return diffInDays <= 3 && diffInMs >= 0;
         } catch (error) {
+            console.error('Error checking attendance confirmation:', error);
             return false;
         }
     };

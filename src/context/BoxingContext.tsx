@@ -339,9 +339,11 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     const getUpcomingTrainings = (): TrainingSession[] => {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date();
+        const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        
         return trainingSessions
-            .filter(t => t.date >= today)
+            .filter(t => t.date >= sevenDaysAgo) // Mostrar treinos dos últimos 7 dias e futuros
             .sort((a, b) => a.date.localeCompare(b.date));
     };
 

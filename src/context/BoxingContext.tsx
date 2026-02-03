@@ -247,10 +247,9 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const markAttendance = async (studentId: string, present: boolean, trainingSessionId?: string) => {
         try {
-            console.log('🔄 Marking attendance:', { studentId, present, trainingSessionId });
             const today = new Date().toISOString().split('T')[0];
             
-            const response = await apiCall('/attendance', {
+            await apiCall('/attendance', {
                 method: 'POST',
                 body: JSON.stringify({
                     studentId,
@@ -259,19 +258,8 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     date: today
                 })
             });
-            
-            console.log('✅ Attendance marked:', response);
 
-            console.log('🔄 Refreshing attendance data...');
             const attendanceData = await apiCall('/attendance');
-            console.log('✅ New attendance data:', attendanceData);
-            
-            // Verificar se a presença foi salva corretamente
-            const savedAttendance = attendanceData.find((a: any) => 
-                a.studentId === studentId && a.trainingSessionId === trainingSessionId
-            );
-            console.log('🎯 Saved attendance for this user:', savedAttendance);
-            
             setAttendance(attendanceData);
         } catch (error) {
             console.error('Mark attendance error:', error);

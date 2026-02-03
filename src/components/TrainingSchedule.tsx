@@ -16,15 +16,7 @@ const TrainingSchedule = () => {
         if (!currentUser) return null;
         // Use profileId (Student ID) if available, otherwise fallback to id (User ID)
         const studentId = currentUser.profileId || currentUser.id;
-        console.log('🔍 Searching attendance for training:', {
-            trainingId,
-            studentId,
-            currentUser: { id: currentUser.id, profileId: currentUser.profileId }
-        });
-        
-        const found = attendance.find(a => a.trainingSessionId === trainingId && a.studentId === studentId);
-        console.log('🎯 Found attendance:', found);
-        return found;
+        return attendance.find(a => a.trainingSessionId === trainingId && a.studentId === studentId);
     };
 
     const handleConfirm = (trainingId: string, trainingDate: string, trainingTime: string, willAttend: boolean) => {

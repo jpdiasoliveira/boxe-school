@@ -245,10 +245,12 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
     };
 
-    const markAttendance = async (studentId: string, present: boolean, trainingSessionId?: string) => {
+    const markAttendance = async (studentId: string, present: boolean, trainingSessionId?: string, trainingDate?: string) => {
         try {
-            console.log('🔄 Marking attendance:', { studentId, present, trainingSessionId });
-            const today = new Date().toISOString().split('T')[0];
+            console.log('🔄 Marking attendance:', { studentId, present, trainingSessionId, trainingDate });
+            
+            // Usar data do treino se fornecida, caso contrário usar data atual
+            const date = trainingDate || new Date().toISOString().split('T')[0];
             
             const response = await apiCall('/attendance', {
                 method: 'POST',
@@ -256,7 +258,7 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     studentId,
                     trainingSessionId,
                     present,
-                    date: today
+                    date
                 })
             });
             

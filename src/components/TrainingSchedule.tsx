@@ -33,8 +33,8 @@ const TrainingSchedule = () => {
 
         // Use profileId (Student ID) if available
         const studentId = currentUser.profileId || currentUser.id;
-        console.log('📤 Calling markAttendance with:', { studentId, willAttend, trainingId });
-        markAttendance(studentId, willAttend, trainingId);
+        console.log('📤 Calling markAttendance with:', { studentId, willAttend, trainingId, trainingDate });
+        markAttendance(studentId, willAttend, trainingId, trainingDate);
     };
 
     const getDaysUntil = (date: string) => {

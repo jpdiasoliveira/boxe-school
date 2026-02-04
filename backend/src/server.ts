@@ -1,3 +1,5 @@
+console.log('🚀🚀🚀 SERVER STARTED - NEW VERSION 2.0!!!');
+
 import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';

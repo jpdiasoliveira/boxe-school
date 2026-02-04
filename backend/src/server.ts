@@ -574,14 +574,16 @@ app.post('/api/attendance', async (req, res) => {
             SELECT * FROM attendance WHERE studentld = '${studentId}' AND trainingsessionld = '${trainingSessionId}'
         ` as any[];
 
+        console.log('🔍 Existing attendance records:', existing);
+
         if (existing.length > 0) {
-            // Update existing
+            // Update existing - sempre atualizar independentemente da data
             await prisma.$executeRawUnsafe(`
                 UPDATE attendance 
                 SET present = ${present}, date = '${date}'
                 WHERE studentld = '${studentId}' AND trainingsessionld = '${trainingSessionId}'
             `);
-            console.log('Attendance updated successfully');
+            console.log('✅ Attendance updated successfully');
             res.json({ success: true, updated: true });
         } else {
             // Create new
@@ -590,7 +592,7 @@ app.post('/api/attendance', async (req, res) => {
                 INSERT INTO attendance (id, studentld, trainingsessionld, present, date)
                 VALUES ('${attendanceId}', '${studentId}', '${trainingSessionId}', ${present}, '${date}')
             `);
-            console.log('Attendance created successfully');
+            console.log('✅ Attendance created successfully');
             res.json({ success: true, created: true });
         }
     } catch (error: any) {

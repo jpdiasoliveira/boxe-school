@@ -564,6 +564,7 @@ app.get('/api/attendance', async (req, res) => {
 
 // Mark Attendance
 app.post('/api/attendance', async (req, res) => {
+    console.log('🚀 ATTENDANCE ENDPOINT CALLED - NEW VERSION');
     const { studentId, trainingSessionId, present, date } = req.body;
 
     try {

@@ -25,7 +25,7 @@ interface BoxingContextType {
     addStudent: (student: Omit<Student, 'id'>) => Promise<void>;
     updateStudent: (id: string, student: Partial<Student>) => Promise<void>;
     deleteStudent: (id: string) => Promise<void>;
-    markAttendance: (studentId: string, present: boolean, trainingSessionId?: string) => Promise<void>;
+    markAttendance: (studentId: string, present: boolean, trainingSessionId?: string, trainingDate?: string) => Promise<void>;
     getStudentStatus: (student: Student) => 'active' | 'overdue';
     currentUser: { role: 'professor' | 'student'; id: string; username: string; profileId?: string } | null;
     login: (username: string, password: string) => Promise<{ role: string } | null>;

@@ -268,10 +268,14 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const attendanceData = await apiCall('/attendance');
             console.log('✅ New attendance data:', attendanceData);
             
-            // Forçar atualização local imediata
+            // Forçar atualização local imediata - garantir que apenas o treino correto seja atualizado
             const newAttendance = attendanceData.map((att: any) => {
-                // Se for o registro que acabamos de atualizar, usar os valores enviados
+                // Verificar EXATAMENTE o treino que foi atualizado
                 if (att.studentId === studentId && att.trainingSessionId === trainingSessionId) {
+                    console.log('🎯 Updating attendance record:', { 
+                        old: { present: att.present, date: att.date }, 
+                        new: { present: present, date: date } 
+                    });
                     return {
                         ...att,
                         present: present,
@@ -353,10 +357,19 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const getUpcomingTrainings = (): TrainingSession[] => {
         const today = new Date();
-        const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         
+        // Se for professor, mostrar todos os treinos (últimos 7 dias e futuros)
+        if (currentUser?.role === 'professor') {
+            const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            return trainingSessions
+                .filter(t => t.date >= sevenDaysAgo)
+                .sort((a, b) => a.date.localeCompare(b.date));
+        }
+        
+        // Se for aluno, mostrar apenas próximos 4 dias
+        const fourDaysFromNow = new Date(today.getTime() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         return trainingSessions
-            .filter(t => t.date >= sevenDaysAgo) // Mostrar treinos dos últimos 7 dias e futuros
+            .filter(t => t.date >= today.toISOString().split('T')[0] && t.date <= fourDaysFromNow)
             .sort((a, b) => a.date.localeCompare(b.date));
     };
 

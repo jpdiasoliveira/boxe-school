@@ -27,7 +27,7 @@ const TrainingSchedule = () => {
         console.log('🔄 handleConfirm called:', { trainingId, trainingDate, trainingTime, willAttend });
 
         if (!canConfirmAttendance(trainingDate, trainingTime)) {
-            alert('Você só pode confirmar presença entre 3 dias antes e até o horário do treino!');
+            alert('Você só pode confirmar presença até 3 dias antes e até o horário exato do treino!');
             return;
         }
 

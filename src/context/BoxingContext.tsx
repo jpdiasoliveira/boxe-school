@@ -268,13 +268,24 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const attendanceData = await apiCall('/attendance');
             console.log('✅ New attendance data:', attendanceData);
             
-            // Verificar se a presença foi salva corretamente
-            const savedAttendance = attendanceData.find((a: any) => 
-                a.studentId === studentId && a.trainingSessionId === trainingSessionId
-            );
-            console.log('🎯 Saved attendance for this user:', savedAttendance);
+            // Forçar atualização local imediata
+            const newAttendance = attendanceData.map((att: any) => {
+                // Se for o registro que acabamos de atualizar, usar os valores enviados
+                if (att.studentId === studentId && att.trainingSessionId === trainingSessionId) {
+                    return {
+                        ...att,
+                        present: present,
+                        date: date
+                    };
+                }
+                return att;
+            });
             
-            setAttendance(attendanceData);
+            console.log('🎯 Forced local attendance update:', newAttendance.filter((att: any) => 
+                att.studentId === studentId && att.trainingSessionId === trainingSessionId
+            ));
+            
+            setAttendance(newAttendance);
         } catch (error) {
             console.error('Mark attendance error:', error);
         }

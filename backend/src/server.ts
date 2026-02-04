@@ -568,9 +568,9 @@ app.get('/api/test-deploy', (req, res) => {
     res.json({ message: 'Deploy test successful', version: 'new', timestamp: new Date().toISOString() });
 });
 
-// Mark Attendance
-app.post('/api/attendance', async (req, res) => {
-    console.log('🚀 ATTENDANCE ENDPOINT CALLED - NEW VERSION');
+// Mark Attendance - NEW VERSION
+app.post('/api/attendance-v2', async (req, res) => {
+    console.log('🚀 ATTENDANCE V2 ENDPOINT CALLED - NEW VERSION');
     const { studentId, trainingSessionId, present, date } = req.body;
 
     try {
@@ -606,6 +606,20 @@ app.post('/api/attendance', async (req, res) => {
         console.error('Error marking attendance:', error);
         res.status(400).json({ error: 'Erro ao marcar presença', details: error.message });
     }
+});
+
+// Mark Attendance - OLD VERSION (KEEP FOR COMPATIBILITY)
+app.post('/api/attendance', async (req, res) => {
+    console.log('🚀 OLD ATTENDANCE ENDPOINT CALLED - REDIRECTING TO V2');
+    // Redirect to new version
+    return req.method === 'POST' ? 
+        req.pipe(require('http').request({
+            hostname: 'backend-kappa-two-37.vercel.app',
+            path: '/api/attendance-v2',
+            method: 'POST',
+            headers: req.headers
+        })) : 
+        res.json({ error: 'Use /api/attendance-v2 instead' });
 });
 
 // Create Test Users

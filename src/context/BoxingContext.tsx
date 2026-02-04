@@ -252,7 +252,7 @@ export const BoxingProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             // Usar data do treino se fornecida, caso contrário usar data atual
             const date = trainingDate || new Date().toISOString().split('T')[0];
             
-            const response = await apiCall('/attendance', {
+            const response = await apiCall('/attendance-v2', {
                 method: 'POST',
                 body: JSON.stringify({
                     studentId,

@@ -562,6 +562,12 @@ app.get('/api/attendance', async (req, res) => {
     }
 });
 
+// Test Route
+app.get('/api/test-deploy', (req, res) => {
+    console.log('🚀 TEST DEPLOY ROUTE CALLED - NEW VERSION');
+    res.json({ message: 'Deploy test successful', version: 'new', timestamp: new Date().toISOString() });
+});
+
 // Mark Attendance
 app.post('/api/attendance', async (req, res) => {
     console.log('🚀 ATTENDANCE ENDPOINT CALLED - NEW VERSION');

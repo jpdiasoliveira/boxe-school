@@ -570,6 +570,7 @@ app.get('/api/test-deploy', (req, res) => {
 
 // Mark Attendance - NEW VERSION
 app.post('/api/attendance-v2', async (req, res) => {
+    console.log('🚀🚀🚀 V2 CALLED!!!');
     console.log('🚀 ATTENDANCE V2 ENDPOINT CALLED - NEW VERSION');
     const { studentId, trainingSessionId, present, date } = req.body;
 

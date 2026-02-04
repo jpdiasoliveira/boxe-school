@@ -28,3 +28,6 @@ dist-ssr
 
 backend/check-*.ts
 backend/test-*.js
+
+.vercel
+.env*.local
